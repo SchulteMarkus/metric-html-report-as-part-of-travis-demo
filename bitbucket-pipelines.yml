@@ -1,9 +1,24 @@
-image: maven:3.3.9
-
 pipelines:
   default:
     - step:
+        name: Create checkstyle report (XML)
+        image: maven:3.3.9
         caches:
           - maven
         script:
-          - mvn -B verify checkstyle:checkstyle
+          - mvn -B checkstyle:checkstyle
+        artifacts:
+          - target/checkstyle-result.xml
+    - step:
+        name: Create checkstyle report as HTML, upload, and update Bitbucket slug
+        image: alpine
+        script:
+          # 1. Create checkstyle HTML report
+          - mkdir -p target/${BITBUCKET_COMMIT}/checkstyle/
+          - echo 'T.B.D. nr.1'
+          # 2. Upload report to S3, from https://bitbucket.org/awslabs/amazon-s3-bitbucket-pipelines-python
+          - echo 'T.B.D. nr.2'
+          # 3. Update Bitbucket slug, from https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
+          - export S3_URL="https://www.markusschulte.eu/bitbucket/${BITBUCKET_REPO_SLUG}/${BITBUCKET_COMMIT}/checkstyle/tdb.txt"
+          - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
+          - curl -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build"
