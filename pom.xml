@@ -13,4 +13,8 @@
     <developerConnection>scm:git:git@bitbucket.org/MarkusSchulte/java-metrics-as-html-example.git
     </developerConnection>
   </scm>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
 </project>
