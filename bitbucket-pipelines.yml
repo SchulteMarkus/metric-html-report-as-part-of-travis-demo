@@ -21,4 +21,4 @@ pipelines:
           # 3. Update Bitbucket slug, from https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
           - export S3_URL="https://www.markusschulte.eu/bitbucket/${BITBUCKET_REPO_SLUG}/${BITBUCKET_COMMIT}/checkstyle/tdb.txt"
           - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
-          - curl -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build"
+          - curl -s -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build"
