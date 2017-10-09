@@ -2,7 +2,7 @@ pipelines:
   default:
     - step:
         name: Create checkstyle report (XML)
-        image: maven:3.3.9
+        image: maven:3.5-jdk-9-slim
         caches:
           - maven
         script:
