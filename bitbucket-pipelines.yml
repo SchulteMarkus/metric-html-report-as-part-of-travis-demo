@@ -11,7 +11,7 @@ pipelines:
           - target/checkstyle-result.xml
     - step:
         name: Create checkstyle report as HTML, upload, and update Bitbucket slug
-        image: debian
+        image: ubuntu
         script:
           # 1. Create checkstyle HTML report
           - mkdir -p target/${BITBUCKET_COMMIT}/checkstyle/
