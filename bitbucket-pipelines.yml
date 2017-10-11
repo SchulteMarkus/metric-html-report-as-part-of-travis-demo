@@ -13,8 +13,8 @@ pipelines:
         name: Create checkstyle report as HTML
         image:
           name: schultedev/checkstyle-xml-to-html
-            username: $DOCKER_USERNAME
-            password: $DOCKER_PASSWORD
+          username: $DOCKER_USERNAME
+          password: $DOCKER_PASSWORD
         script:
           - java -jar /app.jar $BITBUCKET_CLONE_DIR/target/checkstyle-result.xml -od html-report/checkstyle
         artifacts:
