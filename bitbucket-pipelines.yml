@@ -18,7 +18,7 @@ pipelines:
         script:
           - java -jar /app.jar $BITBUCKET_CLONE_DIR/target/checkstyle-result.xml -od $BITBUCKET_CLONE_DIR/target/html-report/checkstyle
         artifacts:
-          - html-report/checkstyle/**
+          - target/html-report/checkstyle
     - step:
         name: Upload HTML report to S3, link in BitBucket repo slug
         image: python:3
