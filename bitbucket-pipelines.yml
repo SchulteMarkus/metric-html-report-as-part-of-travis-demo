@@ -10,15 +10,28 @@ pipelines:
         artifacts:
           - target/checkstyle-result.xml
     - step:
-        name: Create checkstyle report as HTML, upload, and update Bitbucket slug
-        image: byrnedo/alpine-curl
+        name: Create checkstyle report as HTML
+        image:
+          name: schultedev/checkstyle-xml-to-html
+            username: $DOCKER_USERNAME
+            password: $DOCKER_PASSWORD
         script:
-          # 1. Create checkstyle HTML report
-          - mkdir -p target/${BITBUCKET_COMMIT}/checkstyle/
-          - echo 'T.B.D. nr.1'
-          # 2. Upload report to S3, from https://bitbucket.org/awslabs/amazon-s3-bitbucket-pipelines-python
-          - echo 'T.B.D. nr.2'
+          - java -jar /app.jar $BITBUCKET_CLONE_DIR/target/checkstyle-result.xml -od html-report/checkstyle
+        artifacts:
+          - html-report/checkstyle/**
+    - step:
+        image: python:3
+        script:
+          - export ARTIFACT=$BITBUCKET_CLONE_DIR/checkstyle-html-report/index.html
+          - export S3_BUCKET=xml-metrics-to-html
+          - export S3_KEY_PREFIX=bitbucket/markusschulte/metric-html-report-as-part-of-pipeline-demo/
+          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/index.html
+          - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/index.html
+          # Upload report to S3, from https://bitbucket.org/awslabs/amazon-s3-bitbucket-pipelines-python/overview
+          - pip install boto3==1.3.0
+          - python s3_upload.py $S3_BUCKET $ARTIFACT $S3_BUCKET_KEY_COMMIT
+          - python s3_upload.py $S3_BUCKET $ARTIFACT $S3_BUCKET_KEY_BRANCH
           # 3. Update Bitbucket slug, from https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
-          - export S3_URL="https://www.markusschulte.eu/bitbucket/${BITBUCKET_REPO_SLUG}/${BITBUCKET_COMMIT}/checkstyle/tdb.txt"
+          - export S3_URL="https://${S3_BUCKET}.s3.amazonaws.com/S3_BUCKET_KEY_COMMIT"
           - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
           - curl -s -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build"
