@@ -33,7 +33,7 @@ pipelines:
         name: Link HTML report in BitBucket repo slug
         script:
           # 3. From https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
-          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/
+          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT
           - export S3_URL="https://s3.eu-central-1.amazonaws.com/$S3_BUCKET_KEY_COMMIT/index.html"
           - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
           - export BITBUCKET_REPO_SLUG_API_URL=https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build
