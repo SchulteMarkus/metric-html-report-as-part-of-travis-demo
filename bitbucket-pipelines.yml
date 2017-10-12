@@ -27,7 +27,7 @@ pipelines:
           - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/
           - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/
           - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_COMMIT
-          - s3cmd del s3://$S3_BUCKET_KEY_BRANCH
+          - s3cmd -r del s3://$S3_BUCKET_KEY_BRANCH
           - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_BRANCH
     - step:
         name: Link HTML report in BitBucket repo slug
