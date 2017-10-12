@@ -20,20 +20,20 @@ pipelines:
         artifacts:
           - target/html-report/checkstyle/**
     - step:
-        name: Upload HTML report to S3, link in BitBucket repo slug
-        image: python:3
+        name: Upload HTML report to S3 (once for branch, once commit-specific)
+        image: schickling/s3cmd
         script:
-          - export ARTIFACT=$BITBUCKET_CLONE_DIR/target/html-report/checkstyle/index.html
-          - export S3_BUCKET=xml-metrics-to-html
-          - export S3_KEY_PREFIX=bitbucket/markusschulte/metric-html-report-as-part-of-pipeline-demo/
-          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/index.html
-          - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/index.html
-          - export BITBUCKET_REPO_SLUG_API_URL=https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build
-          # Upload report to S3, from https://bitbucket.org/awslabs/amazon-s3-bitbucket-pipelines-python/overview
-          - pip install boto3==1.3.0
-          - python s3_upload.py $S3_BUCKET $ARTIFACT $S3_BUCKET_KEY_COMMIT
-          - python s3_upload.py $S3_BUCKET $ARTIFACT $S3_BUCKET_KEY_BRANCH
-          # 3. Update Bitbucket slug, from https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
+          - export ARTIFACT=$BITBUCKET_CLONE_DIR/target/html-report/checkstyle/
+          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/
+          - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/
+          - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_COMMIT
+          - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_BRANCH
+    - step:
+        name: Link HTML report in BitBucket repo slug
+        script:
+          # 3. From https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
+          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/
           - export S3_URL="https://${S3_BUCKET}.s3.amazonaws.com/$S3_BUCKET_KEY_COMMIT"
           - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
           - curl -s -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "$BITBUCKET_REPO_SLUG_API_URL"
+
