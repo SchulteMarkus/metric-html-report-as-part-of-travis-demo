@@ -7,31 +7,26 @@ cache:
 sudo: required
 services:
   - docker
+env:
+  global:
+    - ARTIFACTS_S3_BUCKET=xml-metrics-to-html
+    - S3_KEY_PREFIX=github/markusschulte/metric-html-report-as-part-of-pipeline-demo
+    - CHECKSTYLE_HTML_REPORT_DIR=$TRAVIS_BUILD_DIR/target/checkstyle-html-report
+addons:
+  artifacts:
+    debug: true
+    paths:
+      - $CHECKSTYLE_HTML_REPORT_DIR/**
+    target_paths: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/:$S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
+    s3_region: eu-central-1
 
 before_script:
-  - mkdir $TRAVIS_BUILD_DIR/target/checkstyle-html-report/
+  - mkdir $CHECKSTYLE_HTML_REPORT_DIR
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker pull schultedev/checkstyle-xml-to-html
 script:
-  - mvn clean checkstyle:checkstyle
+  - mvn checkstyle:checkstyle
   - docker run --rm
       -v $TRAVIS_BUILD_DIR/target/checkstyle-result.xml:/checkstyle-result.xml:ro
-      -v $TRAVIS_BUILD_DIR/target/checkstyle-html-report/:/tmp/checkstyle-html-report/
+      -v $CHECKSTYLE_HTML_REPORT_DIR:/tmp/checkstyle-html-report/
       schultedev/checkstyle-xml-to-html:latest
-deploy:
-  - provider: s3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket: $S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
-    local_dir: $TRAVIS_BUILD_DIR/target/checkstyle-html-report/
-    on:
-      all_branches: true
-    region: "eu-central-1"
-  - provider: s3
-    access_key_id: $AWS_ACCESS_KEY_ID
-    secret_access_key: $AWS_SECRET_ACCESS_KEY
-    bucket: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/
-    local_dir: $TRAVIS_BUILD_DIR/target/checkstyle-html-report/
-    on:
-          all_branches: true
-    region: "eu-central-1"
