@@ -4,10 +4,10 @@
 Demonstrating how to have a different metric HTML reports, such as
 - [Checkstyle](https://github.com/checkstyle/checkstyle)/[PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)
 
-as part of Travis build pipeline.
+as part of Bitbucket build pipeline.
 
 ## HowTo
 
-- [.travis.yml](.travis.yml)
+- [bitbucket-pipelines.yml](bitbucket-pipelines.yml)
 
 T.B.D.
