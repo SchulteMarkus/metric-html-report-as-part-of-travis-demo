@@ -18,6 +18,9 @@ addons:
     paths:
       - $(ls $CHECKSTYLE_HTML_REPORT_DIR | tr "\n" ":")
     target_paths: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/:$S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
+branches:
+  only:
+    - github
 
 before_script:
   - mkdir $CHECKSTYLE_HTML_REPORT_DIR
