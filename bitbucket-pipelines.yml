@@ -1,41 +1,42 @@
 pipelines:
-  default:
-    - step:
-        name: Create XML report
-        image: maven:3.5-jdk-9-slim
-        caches:
-          - maven
-        script:
-          - mvn checkstyle:checkstyle
-        artifacts:
-          - target/checkstyle-result.xml
-    - step:
-        name: Create HTML report from XML report
-        image:
-          name: schultedev/checkstyle-xml-to-html
-          username: $DOCKER_USERNAME
-          password: $DOCKER_PASSWORD
-        script:
-          - java -jar /app.jar $BITBUCKET_CLONE_DIR/target/checkstyle-result.xml -od $BITBUCKET_CLONE_DIR/target/html-report/checkstyle
-        artifacts:
-          - target/html-report/checkstyle/**
-    - step:
-        name: Upload HTML report to S3 (once for branch, once commit-specific)
-        image: schickling/s3cmd
-        script:
-          - export ARTIFACT=$BITBUCKET_CLONE_DIR/target/html-report/checkstyle/
-          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/checkstyle/
-          - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/checkstyle/
-          - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_COMMIT
-          - s3cmd -r del s3://$S3_BUCKET_KEY_BRANCH
-          - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_BRANCH
-    - step:
-        name: Link HTML report in BitBucket repo slug
-        script:
-          # 3. From https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
-          - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT
-          - export S3_URL="https://s3.amazonaws.com/$S3_BUCKET_KEY_COMMIT/checkstyle/index.html"
-          - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
-          - export BITBUCKET_REPO_SLUG_API_URL=https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build
-          - curl -s -o /dev/null -w \"%{http_code}\" -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "$BITBUCKET_REPO_SLUG_API_URL"
+  branches:
+    bitbucket:
+      - step:
+          name: Create XML report
+          image: maven:3.5-jdk-9-slim
+          caches:
+            - maven
+          script:
+            - mvn checkstyle:checkstyle
+          artifacts:
+            - target/checkstyle-result.xml
+      - step:
+          name: Create HTML report from XML report
+          image:
+            name: schultedev/checkstyle-xml-to-html
+            username: $DOCKER_USERNAME
+            password: $DOCKER_PASSWORD
+          script:
+            - java -jar /app.jar $BITBUCKET_CLONE_DIR/target/checkstyle-result.xml -od $BITBUCKET_CLONE_DIR/target/html-report/checkstyle
+          artifacts:
+            - target/html-report/checkstyle/**
+      - step:
+          name: Upload HTML report to S3 (once for branch, once commit-specific)
+          image: schickling/s3cmd
+          script:
+            - export ARTIFACT=$BITBUCKET_CLONE_DIR/target/html-report/checkstyle/
+            - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT/checkstyle/
+            - export S3_BUCKET_KEY_BRANCH=$S3_KEY_PREFIX/$BITBUCKET_BRANCH/checkstyle/
+            - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_COMMIT
+            - s3cmd -r del s3://$S3_BUCKET_KEY_BRANCH
+            - s3cmd -P sync $ARTIFACT s3://$S3_BUCKET_KEY_BRANCH
+      - step:
+          name: Link HTML report in BitBucket repo slug
+          script:
+            # 3. From https://confluence.atlassian.com/bitbucket/publish-and-link-your-build-artifacts-872137736.html
+            - export S3_BUCKET_KEY_COMMIT=$S3_KEY_PREFIX/$BITBUCKET_COMMIT
+            - export S3_URL="https://s3.amazonaws.com/$S3_BUCKET_KEY_COMMIT/checkstyle/index.html"
+            - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
+            - export BITBUCKET_REPO_SLUG_API_URL=https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build
+            - curl -s -o /dev/null -w \"%{http_code}\" -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "$BITBUCKET_REPO_SLUG_API_URL"
 
