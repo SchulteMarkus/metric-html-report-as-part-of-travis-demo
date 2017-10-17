@@ -11,15 +11,14 @@ env:
   global:
     - ARTIFACTS_S3_BUCKET=xml-metrics-to-html
     - S3_KEY_PREFIX=github/markusschulte/metric-html-report-as-part-of-pipeline-demo
-    - CHECKSTYLE_HTML_REPORT_DIR=$TRAVIS_BUILD_DIR/target/checkstyle-html-report
+    - CHECKSTYLE_HTML_REPORT_DIR=target/checkstyle-html-report
 addons:
   artifacts:
     debug: true
-    working_dir: $CHECKSTYLE_HTML_REPORT_DIR
     paths:
-      - $(ls . | tr "\n" ":")
+      - $(ls $CHECKSTYLE_HTML_REPORT_DIR | tr "\n" ":")
     target_paths: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/:$S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
-    s3_region: eu-central-1
+    s3_region: s3-eu-central-1
 
 before_script:
   - mkdir $CHECKSTYLE_HTML_REPORT_DIR
@@ -29,5 +28,5 @@ script:
   - mvn checkstyle:checkstyle
   - docker run --rm
       -v $TRAVIS_BUILD_DIR/target/checkstyle-result.xml:/checkstyle-result.xml:ro
-      -v $CHECKSTYLE_HTML_REPORT_DIR:/tmp/checkstyle-html-report/
+      -v $TRAVIS_BUILD_DIR/$CHECKSTYLE_HTML_REPORT_DIR:/tmp/checkstyle-html-report/
       schultedev/checkstyle-xml-to-html:latest
