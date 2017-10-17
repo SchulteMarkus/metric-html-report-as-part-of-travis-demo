@@ -14,9 +14,9 @@ before_script:
   - docker pull schultedev/checkstyle-xml-to-html
 script:
   - mvn clean checkstyle:checkstyle
-  - docker run -u $USER \
-      -v $TRAVIS_BUILD_DIR/target/checkstyle-result.xml:/checkstyle-result.xml:ro \
-      -v $TRAVIS_BUILD_DIR/target/checkstyle-html-report/:/tmp/checkstyle-html-report/ \
+  - docker run -u $USER
+      -v $TRAVIS_BUILD_DIR/target/checkstyle-result.xml:/checkstyle-result.xml:ro
+      -v $TRAVIS_BUILD_DIR/target/checkstyle-html-report/:/tmp/checkstyle-html-report/
       schultedev/checkstyle-xml-to-html:latest
 deploy:
   - provider: s3
