@@ -24,10 +24,14 @@ deploy:
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     bucket: $S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
     local_dir: $TRAVIS_BUILD_DIR/target/checkstyle-html-report/
+    on:
+      all_branches: true
     region: "eu-central-1"
   - provider: s3
     access_key_id: $AWS_ACCESS_KEY_ID
     secret_access_key: $AWS_SECRET_ACCESS_KEY
     bucket: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/
     local_dir: $TRAVIS_BUILD_DIR/target/checkstyle-html-report/
+    on:
+          all_branches: true
     region: "eu-central-1"
