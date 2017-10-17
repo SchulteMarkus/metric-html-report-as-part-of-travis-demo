@@ -39,4 +39,3 @@ pipelines:
             - export BUILD_STATUS="{\"key\":\"doc\", \"state\":\"SUCCESSFUL\", \"name\":\"Checkstyle HTML report\", \"url\":\"${S3_URL}\"}"
             - export BITBUCKET_REPO_SLUG_API_URL=https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/commit/${BITBUCKET_COMMIT}/statuses/build
             - curl -s -o /dev/null -w \"%{http_code}\" -H "Content-Type:application/json" -X POST --user "${BB_AUTH_STRING}" -d "${BUILD_STATUS}" "$BITBUCKET_REPO_SLUG_API_URL"
-
