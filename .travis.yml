@@ -10,7 +10,7 @@ services:
 env:
   global:
     - ARTIFACTS_S3_BUCKET=schultedev-xml-metrics-to-html
-    - S3_KEY_PREFIX=github/markusschulte/metric-html-report-as-part-of-pipeline-demo
+    - S3_KEY_PREFIX=github/$TRAVIS_REPO_SLUG
     - CHECKSTYLE_HTML_REPORT_DIR=target/checkstyle-html-report
 addons:
   artifacts:
