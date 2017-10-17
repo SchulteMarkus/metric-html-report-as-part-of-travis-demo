@@ -31,5 +31,5 @@ script:
       schultedev/checkstyle-xml-to-html:latest
 after_success:
   - "curl -s -o /dev/null -w \"%{http_code}\" -H \"Authorization: token $GH_MS_API_PERSONAL_ACCESS_TOKEN\"
-      -d '{\"state\": \"success\", \"description\": \"Checkstyle HTML report\", \"context\": \"Checkstyle\", \"target_url\": \"https://s3.amazonaws.com/${ARTIFACTS_S3_BUCKET}/${S3_KEY_PREFIX}/${TRAVIS_COMMIT}/checkstyle/index.html\"}'
+      -d '{\"state\": \"success\", \"description\": \"Checkstyle HTML report\", \"context\": \"Checkstyle\", \"target_url\": \"https://s3.amazonaws.com/$ARTIFACTS_S3_BUCKET/$S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/index.html\"}'
       https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/$TRAVIS_COMMIT"
