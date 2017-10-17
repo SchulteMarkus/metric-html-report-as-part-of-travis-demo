@@ -9,8 +9,7 @@ services:
   - docker
 env:
   global:
-    - ARTIFACTS_REGION=eu-central-1
-    - ARTIFACTS_S3_BUCKET=xml-metrics-to-html
+    - ARTIFACTS_S3_BUCKET=schultedev-xml-metrics-to-html
     - S3_KEY_PREFIX=github/markusschulte/metric-html-report-as-part-of-pipeline-demo
     - CHECKSTYLE_HTML_REPORT_DIR=target/checkstyle-html-report
 addons:
