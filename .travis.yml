@@ -16,7 +16,7 @@ addons:
   artifacts:
     debug: true
     paths:
-      - $CHECKSTYLE_HTML_REPORT_DIR/**
+      - $(ls $CHECKSTYLE_HTML_REPORT_DIR | tr "\n" ":")
     target_paths: $S3_KEY_PREFIX/$TRAVIS_COMMIT/checkstyle/:$S3_KEY_PREFIX/$TRAVIS_BRANCH/checkstyle/
     s3_region: eu-central-1
 
