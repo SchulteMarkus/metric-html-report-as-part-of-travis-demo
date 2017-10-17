@@ -1,13 +1,16 @@
 language: java
 jdk:
   - oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
 sudo: required
 services:
   - docker
 
 jobs:
   include:
-    - stage: Create XML report
+    - stage: Create Checkstyle XML report
       script: mvn clean checkstyle:checkstyle
 
     - stage: Create Checkstyle HTML report from XML report, upload to S3
